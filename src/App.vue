@@ -10,7 +10,21 @@
 <script>
     //1.导入组件
     import FooterGuide from './components/FooterGuide/FooterGuide.vue'
+    //调用action里的函数的
+    import {mapActions} from 'vuex'
+
     export default {
+
+      mounted () {
+        //this.$store.dispatch('getAddress')
+        //this.$store.dispatch('getCategorys')
+        //this.getAddress()
+      },
+
+      methods: {
+        //
+        ...mapActions(['getAddress'])
+      },
       //2.映射成标签
       components: {
         FooterGuide
