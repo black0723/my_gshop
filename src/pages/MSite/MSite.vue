@@ -13,7 +13,8 @@
     <!--首页导航-->
     <nav class="msite_nav">
       <div class="swiper-container">
-        <div class="swiper-wrapper">
+        <!-- v-if="categorysArr.length > 0" 当为空的时候显示下面的加载中图片 -->
+        <div class="swiper-wrapper" v-if="categorysArr.length > 0">
           <div class="swiper-slide" v-for="(categorys,index) in categorysArr" :key="index">
             <a href="javascript:" class="link_to_food" v-for="(category,index) in categorys" :key="index">
               <div class="food_container">
@@ -21,9 +22,9 @@
               </div>
               <span>{{category.title}}</span>
             </a>
-
           </div>
         </div>
+        <img src="./images/msite_back.svg" alt="back" v-else/>
         <!-- Add Pagination -->
         <div class="swiper-pagination"></div>
       </div>
@@ -62,15 +63,15 @@
       this.$store.dispatch('getCategorys')
 
       //创建一个Swiper对象来实现轮播
-      new Swiper('.swiper-container',{
+      //静态页时候的代码
+      /*new Swiper('.swiper-container',{
         loop: true,
         // 如果需要分页器
         pagination: {
           el: '.swiper-pagination',
         },
-      })
+      })*/
     },
-
     computed: {
       //#2.读vuex里的state里的数据
       ...mapState(['address','categorys']),
@@ -95,6 +96,34 @@
         return arr
       }
 
+    },
+    watch : {
+      //监视categorys的数据变化，实现，现有dom再实现轮播
+      categorys (value) {
+        //当categorys里的数据改变了，再创建Swiper，也就是在异步更新界面之前创建。
+        //第一种方法，使用setTimeout
+        /*setTimeout(() => {
+          new Swiper('.swiper-container',{
+            loop: true,
+            // 如果需要分页器
+            pagination: {
+              el: '.swiper-pagination',
+            },
+          })
+        },100)*/
+
+        //第二种方法，使用$nextTick，在界面更新就立即创建swiper
+        this.$nextTick(()=>{
+          new Swiper('.swiper-container',{
+            loop: true,
+            // 如果需要分页器
+            pagination: {
+              el: '.swiper-pagination',
+            },
+          })
+        })
+
+      }
     },
     components: {
       HeaderTop1,
