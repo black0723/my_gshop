@@ -15,7 +15,7 @@ export const reqCategorys = () => ajax('/api/index_category')
 export const reqShops = (longitude,latitude) => ajax('/api/shops',{longitude,latitude})
 
 // [4、根据经纬度和关键字搜索商铺列表](#4 根据经纬度和关键字搜索商铺列表)
-
+export const reqSearchShops = (geohash,keyword) => ajax('/api/search_shops',{geohash,keyword})
 
 // [5、获取一次性验证码](#5 获取一次性验证码)
 
