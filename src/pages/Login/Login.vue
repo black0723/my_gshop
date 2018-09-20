@@ -40,7 +40,8 @@
               </section>
               <section class="login_message">
                 <input type="text" maxlength="11" placeholder="验证码" v-model="captcha">
-                <img class="get_verification" src="http://localhost:4000/captcha" alt="captcha" @click="getCaptcha">
+                <img class="get_verification" src="http://localhost:4000/captcha"
+                     alt="captcha" ref="captcha" @click="getCaptcha">
               </section>
             </section>
           </div>
@@ -58,6 +59,7 @@
 
 <script>
   import AlertTip from '../../components/AlertTip/AlertTip'
+  import {reqSmsLogin,reqPwdLogin} from  '../../api'
 
   export default {
     data () {
@@ -97,30 +99,53 @@
 
         }
       },
-      login () {
+      async login () {
+        let result
         //1.表单验证，收集数据
         if(this.loginWay){
           //短信登录
           const {rightPhone,phone,code} =this
           if(!this.rightPhone){
             this.isShowAlert('手机号不正确')
+            return
           }else if(!/^\d{6}$/.test(code)){
             this.isShowAlert ('短信验证码必须是6位数字')
+            return
           }
+          //发送Ajax请求，登陆
+          result = await reqSmsLogin(this.phone,this.code)
+
+          //todo 停止计时器
         }else {
           //密码登录
-          const {name,paw,captcha} =this
+          const {name,pwd,captcha} =this
           if(!this.name){
             this.isShowAlert ('用户名必须指定')
+            return
           }else if(!this.pwd){
             this.isShowAlert('密码必须指定')
+            return
           }else if(!this.captcha){
             this.isShowAlert('验证码必须指定')
+            return
           }
+          //发送Ajax请求，登陆
+          result = await reqPwdLogin(this.name,this.pwd,this.captcha)
         }
 
-        //2.异步提交登录
+        //根据Ajax的返回结果处理数据
+        if(result.code === 0 ){
+          const user = result.data
+          //将user保存到vuex的state中，
 
+          //跳转到个人中心页面
+          this.$router.replace('/profile')
+        }else{
+          const msg = result.data
+          //刷新验证码
+          this.getCaptcha()
+          this.isShowAlert(msg)
+        }
       },
       isShowAlert (alertText){
         this.showAlert = true
@@ -132,8 +157,8 @@
         this.alertText = ''
       },
       //获取图片验证码
-      getCaptcha(event) {
-        event.target.src='http://localhost:4000/captcha?t='+Date.now()
+      getCaptcha() {
+        this.$refs.captcha.src='http://localhost:4000/captcha?t='+Date.now()
       }
     },
     components: {
