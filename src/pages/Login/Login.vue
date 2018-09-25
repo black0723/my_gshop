@@ -137,11 +137,11 @@
         if(result.code === 0 ){
           const user = result.data
           //将user保存到vuex的state中，
-
+          this.$store.dispatch('getUserInfo',user)
           //跳转到个人中心页面
           this.$router.replace('/profile')
         }else{
-          const msg = result.data
+          const msg = result.msg
           //刷新验证码
           this.getCaptcha()
           this.isShowAlert(msg)

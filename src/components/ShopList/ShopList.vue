@@ -2,7 +2,8 @@
   <div class="shop_container">
     <!-- v-if="shops.length > 0" 当为空的时候显示下面的加载中图片 -->
     <ul class="shop_list" v-if="shops.length > 0">
-      <li class="shop_li border-1px" v-for="(shop,index) in shops" :key="index">
+      <li class="shop_li border-1px" v-for="(shop,index) in shops" :key="index"
+      @click="$router.push('/shop')">
         <a>
           <div class="shop_left">
             <!--<img class="shop_img" :src="baseImageUrl + shop.image_path" />-->

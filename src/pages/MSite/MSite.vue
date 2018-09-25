@@ -3,12 +3,13 @@
     <!--首页头部-->
     <!-- #3.用address的name属性赋值-->
     <HeaderTop1 :title="address.name">
-      <span class="header_search" slot="left">
+      <router-link class="header_search" slot="left" to="/search">
         <i class="iconfont icon-sousuo"></i>
-      </span>
-      <span class="header_login" slot="right">
-        <span class="header_login_text">登录|注册</span>
-      </span>
+      </router-link>
+      <router-link class="header_login" slot="right" :to="userInfo._id ? '/userinfo':'/login'">
+        <span class="header_login_text" v-if="!userInfo._id">登录|注册</span>
+        <span class="header_login_text" v-else><i class="iconfont icon-person"></i></span>
+      </router-link>
     </HeaderTop1>
     <!--首页导航-->
     <nav class="msite_nav">
@@ -74,7 +75,7 @@
     },
     computed: {
       //#2.读vuex里的state里的数据
-      ...mapState(['address','categorys']),
+      ...mapState(['address','categorys','userInfo']),
       /*
       计算属性
       根据categorys一维数组生成一个2维数组，小数组中的元素个数最大为8

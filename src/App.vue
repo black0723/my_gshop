@@ -18,12 +18,13 @@
       mounted () {
         //this.$store.dispatch('getAddress')
         //this.$store.dispatch('getCategorys')
-        //this.getAddress()
+        this.getAddress()
+        this.getUserInfo2()
       },
 
       methods: {
         //
-        ...mapActions(['getAddress'])
+        ...mapActions(['getAddress','getUserInfo2'])
       },
       //2.映射成标签
       components: {

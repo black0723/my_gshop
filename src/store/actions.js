@@ -4,13 +4,17 @@
 import {
   RECEIVE_ADDRESS,
   RECEIVE_CATEGORYS,
-  RECEIVE_SHOPS
+  RECEIVE_SHOPS,
+  RECEIVE_USERINFO,
+  RESET_USER_INFO
 } from './mutation-types'
 
 import {
   reqAddress,
   reqCategorys,
-  reqShops
+  reqShops,
+  reqUser,
+  reqLogout
 } from '../api'
 
 //和后台交互的方法，然后把返回值传给mutations里的对应
@@ -48,6 +52,28 @@ export default {
     if(result.code === 0 ){
       const shops = result.data
       commit(RECEIVE_SHOPS,{shops})
+    }
+  },
+
+  //4.获取当前登陆用户信息
+  getUserInfo({commit},userInfo) {
+    commit(RECEIVE_USERINFO, {userInfo})
+  },
+
+  //5.从后台后获取用户登陆信息
+  async getUserInfo2({commit}) {
+    const result = await reqUser()
+    if(result.code === 0){
+      const userInfo = result.data
+      commit(RECEIVE_USERINFO,{userInfo})
+    }
+  },
+
+  //异步登出
+  async logout({commit}){
+    const result = await reqLogout()
+    if(result.code === 0){
+      commit(RESET_USER_INFO)
     }
   }
 
