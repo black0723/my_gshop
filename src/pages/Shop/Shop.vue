@@ -20,6 +20,10 @@
   import ShopHeader from '../../components/ShopHeader/ShopHeader'
 
   export default {
+    mounted () {
+      //获取商家信息
+      this.$store.dispatch('getShopInfo')
+    },
     components: {ShopHeader},
     component: {
       ShopHeader

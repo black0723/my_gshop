@@ -8,6 +8,8 @@ import App from './App.vue'
 import router from './router/index.js'
 //注册store
 import store from './store'
+//加载mockServer,直接引入
+import './mock/mockServer'
 
 //注册全局组件标签
 Vue.component(Button.name,Button) //<mt-button>
