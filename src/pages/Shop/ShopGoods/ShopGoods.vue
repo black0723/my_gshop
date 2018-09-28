@@ -4,7 +4,8 @@
         <div class="menu-wrapper" ref="menuWrapper">
           <ul>
             <!--current-->
-            <li class="menu-item" v-for="(good,index) in goods" :key="index" :class="{current : index === currentIndex}">
+            <li class="menu-item" v-for="(good,index) in goods" :key="index"
+                :class="{current : index === currentIndex}" @click="menuItem(index)">
               <span class="text bottom-border-1px">
                 <img class="icon" :src="good.icon" v-if="good.icon"> {{good.name}}
               </span>
@@ -13,7 +14,7 @@
         </div>
 
         <div class="foods-wrapper" ref="foodsWrapper">
-          <ul>
+          <ul ref="foodsUl">
             <li class="food-list-hook" v-for="(good,index) in goods" :key="index">
               <h1 class="title">{{good.name}}</h1>
               <ul>
@@ -46,7 +47,10 @@
 </template>
 
 <script>
+  //滑动组件
+  import BScroll from 'better-scroll'
   import {mapState} from 'vuex'
+
   export default {
     data () {
       return {
@@ -55,7 +59,13 @@
       }
     },
     mounted () {
-      this.$store.dispatch('getShopGoods')
+      this.$store.dispatch('getShopGoods',()=>{ //当异步取回数据之后执行回调函数
+        this.$nextTick(()=>{ //当界面更新显示之后执行
+          this._initScroll()
+          this._initTops()
+        })
+      })
+
     },computed: {
       ...mapState(['goods']),
 
@@ -64,6 +74,71 @@
         //1.在滑动过程中实时收集scrollY的值
         //2.列表第一次显示后收集tops
         //3.实现currentIndex的计算逻辑
+        //3.1 得到条件数据
+        const {scrollY,tops} = this
+
+        //3.2根据条件计算
+        const index = tops.findIndex((top,index) => {
+          //scrollY>=当前top && scrollY<下一个top
+          return scrollY >=top && scrollY<tops[index+1]
+        })
+        return index;
+
+        //4.实现列表的滑动，better-scroll插件
+      }
+    },
+    methods : {
+      //初始化滚动条
+      _initScroll () {
+        //当列表显示之后才可以创建滚动组件
+        new BScroll('.menu-wrapper',{
+          click:true
+        })
+        this.foodsScroll = new BScroll('.foods-wrapper',{
+          //配置触发滑动scroll事件，2实时，惯性滑动不会触发
+          probeType : 2,
+          click:true
+        })
+        //给右侧列表绑定scroll监听
+        this.foodsScroll.on('scroll',({x,y}) => {
+          console.log(x,y)
+          //1.在滑动过程中实时收集scrollY的值
+          this.scrollY = Math.abs(y)
+        })
+
+        //给右侧列表绑定scroll结束的监听
+        this.foodsScroll.on('scrollEnd',({x,y}) => {
+          console.log('scrollEnd',x,y)
+          //1.在滑动过程中实时收集scrollY的值
+          this.scrollY = Math.abs(y)
+        })
+      },
+      //初始化tops数组
+      _initTops() {
+        //1. 定义一个 tops
+        const tops = []
+        let top = 0
+        tops.push(top)
+
+        //2.列表第一次显示后收集tops
+        let lis = this.$refs.foodsUl.getElementsByClassName('food-list-hook')
+        Array.prototype.slice.call(lis).forEach(li => {
+          top += li.clientHeight
+          tops.push(top)
+        })
+
+        //3.更新data数据
+        this.tops = tops
+      },
+      //点击左侧，滑动右侧列表
+      menuItem (index) {
+        //使右侧列表滑动到对应的位置
+        //得到目标元素的Y
+        const scrollY = this.tops[index]
+        //立即更新scrollY,让点击的分类项成为当前分类
+        this.scrollY = scrollY
+        //平滑滚动右侧列表
+        this.foodsScroll.scrollTo(0, -scrollY,300)
       }
     }
   }
