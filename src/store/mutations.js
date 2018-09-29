@@ -11,61 +11,84 @@ import {
   RECEIVE_RATINGS,
   RECEIVE_GOODS,
   INCREMENT_FOOD_COUNT,
-  DECREMENT_FOOD_COUNT
+  DECREMENT_FOOD_COUNT,
+  CLEAR_CART_FOOD,
+  RECEIVE_SEARCH_SHOPS
+
 } from './mutation-types'
 import Vue from 'vue'
 
 export default {
   //对应方法,接收一个值，传给state里的对应的值
-  [RECEIVE_ADDRESS] (state,{address}) {
+  [RECEIVE_ADDRESS](state, {address}) {
     state.address = address
   },
-  [RECEIVE_CATEGORYS] (state,{categorys}){
+
+  [RECEIVE_CATEGORYS](state, {categorys}) {
     state.categorys = categorys
   },
-  [RECEIVE_SHOPS] (state,{shops}){
+
+  [RECEIVE_SHOPS](state, {shops}) {
     state.shops = shops
   },
-  [RECEIVE_USERINFO] (state,{userInfo}){
+
+  [RECEIVE_USERINFO](state, {userInfo}) {
     state.userInfo = userInfo
   },
-  [RESET_USER_INFO] (state){
+
+  [RESET_USER_INFO](state) {
     state.userInfo = {}
   },
 
   [RECEIVE_INFO](state, {info}) {
     state.info = info
   },
+
   [RECEIVE_RATINGS](state, {ratings}) {
     state.ratings = ratings
   },
+
   [RECEIVE_GOODS](state, {goods}) {
     state.goods = goods
   },
+
   [INCREMENT_FOOD_COUNT](state, {food}) {
-    if(food.count){
+    if (food.count) {
       food.count++
-    }else{
+    } else {
       //count是新增是属性，没有数据绑定
       //food.count=1
 
       //给vue里的对象设置属性，vue会绑定，参数：对象，属性名，属性值
       //这样让新增的属性也有数据绑定
-      Vue.set(food,'count',1)
+      Vue.set(food, 'count', 1)
 
       //往购物车数组里添加商品
       state.cartFoods.push(food)
     }
   },
+
   [DECREMENT_FOOD_COUNT](state, {food}) {
-    if(food.count){
+    if (food.count) {
       food.count--
-      if(food.count === 0){
+      if (food.count === 0) {
         //从购物车数组里减去商品
         const index = state.cartFoods.indexOf(food)
-        state.cartFoods.splice(index,1)
+        state.cartFoods.splice(index, 1)
       }
     }
   },
+
+  [CLEAR_CART_FOOD](state) {
+    //清除food中的count
+    state.cartFoods.forEach(o => o.count = 0)
+    //移除购物车中的所有项
+    state.cartFoods = []
+  },
+
+  [RECEIVE_SEARCH_SHOPS](state, {searchShops}) {
+    state.searchShops = searchShops
+  }
+
 }
 

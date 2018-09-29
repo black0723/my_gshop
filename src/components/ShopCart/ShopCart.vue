@@ -2,7 +2,7 @@
   <div>
     <div class="shopcart">
       <div class="content">
-        <div class="content-left">
+        <div class="content-left" @click="toggleShow">
           <div class="logo-wrapper">
             <div class="logo" :class="{highlight:totalCount}">
               <i class="iconfont icon-shopping_cart" :class="{highlight:totalCount}"></i>
@@ -18,35 +18,45 @@
           </div>
         </div>
       </div>
-      <div class="shopcart-list" style="display: none;">
-        <div class="list-header">
-          <h1 class="title">购物车</h1> <span class="empty">清空</span></div>
-        <div class="list-content">
-          <ul>
-            <li class="food"><span class="name">红枣山药糙米粥</span>
-              <div class="price"><span>￥10</span></div>
-              <div class="cartcontrol-wrapper">
-                <div class="cartcontrol">
-                  <div class="iconfont icon-remove_circle_outline"></div>
-                  <div class="cart-count">1</div>
-                  <div class="iconfont icon-add_circle"></div>
+      <transition name="move">
+        <div class="shopcart-list" v-show="listShow">
+          <div class="list-header">
+            <h1 class="title">购物车</h1>
+            <span class="empty" @click="clearCart">清空</span>
+          </div>
+          <div class="list-content">
+            <ul>
+              <li class="food" v-for="(food,index) in cartFoods" :key="index">
+                <span class="name">{{food.name}}</span>
+                <div class="price"><span>￥{{food.price}}</span></div>
+                <div class="cartcontrol-wrapper">
+                  <CartControl :food="food"/>
                 </div>
-              </div>
-            </li>
-          </ul>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
+      </transition>
+
     </div>
-    <div class="list-mask" style="display: none;"></div>
+    <div class="list-mask" v-show="listShow" @click="toggleShow"></div>
   </div>
 
 </template>
 
 <script>
   import {mapState, mapGetters} from 'vuex'
+  import BScroll from 'better-scroll'
+  import {MessageBox} from 'mint-ui'
+
+  import CartControl from '../../components/CartControl/CartControl'
 
   export default {
-    props: {},
+    data () {
+      return {
+        isShow: false
+      }
+    },
     computed: {
       ...mapState(['cartFoods', 'info']),
       //计算购物车的总数量和总价格
@@ -64,7 +74,49 @@
         else if(totalPrice < minPrice)
           return `还差￥${minPrice-totalPrice} 元起送`
         return '去结算'
+      },
+      listShow() {
+        if(this.totalCount === 0){
+          this.isShow = false
+          return false
+        }
+        return this.isShow
       }
+    },
+    methods: {
+      //显示隐藏购物车
+      toggleShow () {
+        if(this.totalCount > 0){
+          this.isShow =  !this.isShow
+        }
+
+        //在界面显示后创建滚动实例
+        if(this.isShow){
+          this.$nextTick(()=>{
+            //实现单例模式，用他this保存
+            if(!this.scroll){
+              this.scroll = new BScroll('.list-content',{
+                click: true
+              })
+            }else{
+              //让滚动条刷新，重新计算高度
+              this.scroll.refresh()
+            }
+
+          })
+        }
+      },
+      //清空购物车
+      clearCart() {
+        MessageBox.confirm('确定要清空购物车吗？').then(o => {
+          this.$store.dispatch('clearCart')
+        },()=>{
+          //取消，不写的话控制台有警告 Uncaught (in promise) cancel
+        });
+      }
+    },
+    components: {
+      CartControl
     }
   }
 </script>
