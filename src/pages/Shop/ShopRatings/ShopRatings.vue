@@ -59,7 +59,10 @@
                 <span class="iconfont" :class="o.rateType===0?'icon-thumb_up':'icon-thumb_down'"></span>
                 <span class="item" v-for="(item,index) in o.recommend" :key="index">{{item}}</span>
               </div>
-              <div class="time">{{o.rateTime}}</div>
+              <div class="time">
+                <!--使用过滤器-->
+                {{o.rateTime | date-format}}
+              </div>
             </div>
           </li>
 
